@@ -1,4 +1,3 @@
-import e from "cors";
 import { useReducer } from "react";
 import { createContext } from "react";
 
@@ -31,7 +30,7 @@ function cartReducer(state, action) {
 
   if (action === "REMOVE_ITEM") {
     const existingCartItemIndex = state.items.findIndex(
-      (item) => item.id === action.items.id
+      (item) => item.id === action.id
     );
 
     const updatedItems = [...state.items];
@@ -51,9 +50,26 @@ function cartReducer(state, action) {
   return state;
 }
 
-export function CartContextProvider() {
-  useReducer(cartReducer, { cart: [] });
-  return <cartContext.Provider></cartContext.Provider>;
+export function CartContextProvider({ children }) {
+  const [cart, dispatchCartAction] = useReducer(cartReducer, { cart: [] });
+
+  function addItem(item) {
+    dispatchCartAction({ type: "ADD_ITEM", item });
+  }
+
+  function removeItem(id) {
+    dispatchCartAction({ type: "REMOVE_ITEM", id });
+  }
+
+  const cartContext = {
+    items: cart.items,
+    addItem,
+    removeItem,
+  };
+
+  return (
+    <cartContext.Provider value={cartContext}>{children}</cartContext.Provider>
+  );
 }
 
 export default cartContext;
