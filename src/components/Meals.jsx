@@ -1,4 +1,5 @@
 import useHttp from "../hooks/useHttp";
+import Error from "./Error";
 import MealItem from "./MealItem";
 
 const requestConfig = {};
@@ -16,6 +17,9 @@ export default function Meals() {
     return <p>Is Loading...</p>;
   }
 
+  if (error) {
+    return <Error title="Failed to fetch" message={error} />;
+  }
   return (
     <ul id="meals">
       {loadedMeals.map((meal) => (
