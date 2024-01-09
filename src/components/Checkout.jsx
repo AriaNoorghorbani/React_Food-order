@@ -6,6 +6,7 @@ import Modal from "../UI/Modal";
 import { currencyFormatter } from "../util/formatting";
 import Button from "../UI/Button";
 import useHttp from "../hooks/useHttp";
+import Error from "./Error";
 
 const requestConf = {
   method: "POST",
@@ -23,7 +24,7 @@ export default function Checkout() {
     error,
     isLoading: isSending,
     sendRequest,
-  } = useHttp("http://localhost:3000/orders", requestConf);
+  } = useHttp("http://localhost:3000/orderss", requestConf);
 
   const totalPrice = cartCtx.items.reduce((totalPrice, item) => {
     return totalPrice + item.quantity * +item.price;
@@ -62,6 +63,8 @@ export default function Checkout() {
     });
   }
 
+  console.log(error);
+
   let action = (
     <>
       <Button type="button" textOnly onClick={handleClose}>
@@ -87,6 +90,9 @@ export default function Checkout() {
           <Input id="postal-code" label="Postal Code"></Input>
           <Input id="city" label="City"></Input>
         </div>
+
+        {error && <Error title="Sending failed" message={error} />}
+
         <p className="modal-actions">{action}</p>
       </form>
     </Modal>
