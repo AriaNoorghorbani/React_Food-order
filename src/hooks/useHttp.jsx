@@ -17,11 +17,11 @@ export default function useHttp(url, config, initialValue) {
   const [data, setData] = useState(initialValue);
 
   const sendRequest = useCallback(
-    async function sendRequest() {
+    async function sendRequest(data) {
       {
         setIsLoading(true);
         try {
-          const resData = await sendHttpRequest(url, config);
+          const resData = await sendHttpRequest(url, { ...config, body: data });
           setData(resData);
         } catch (error) {
           setError(error.message || "Something goes wrong!");
@@ -35,7 +35,6 @@ export default function useHttp(url, config, initialValue) {
   useEffect(() => {
     if ((config && (config.method === "GET" || !config.method)) || !config) {
       sendRequest();
-      console.log("khoda");
     }
   }, [sendRequest, config]);
 

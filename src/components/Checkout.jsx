@@ -5,10 +5,25 @@ import Input from "../UI/Input";
 import Modal from "../UI/Modal";
 import { currencyFormatter } from "../util/formatting";
 import Button from "../UI/Button";
+import useHttp from "../hooks/useHttp";
+
+const requestConf = {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+};
 
 export default function Checkout() {
   const userProgressCtx = useContext(UserProgressContext);
   const cartCtx = useContext(CartContext);
+
+  const {
+    data,
+    error,
+    isLoading: isSending,
+    sendRequest,
+  } = useHttp("http://localhost:3000/orders", requestConf);
 
   const totalPrice = cartCtx.items.reduce((totalPrice, item) => {
     return totalPrice + item.quantity * +item.price;
@@ -24,6 +39,15 @@ export default function Checkout() {
     const fd = new FormData(event.target);
     const customerData = Object.fromEntries(fd.entries());
 
+    sendRequest(
+      JSON.stringify({
+        order: {
+          items: cartCtx.items,
+          customer: customerData,
+        },
+      })
+    );
+
     fetch("http://localhost:3000/orders", {
       method: "POST",
       headers: {
@@ -38,6 +62,19 @@ export default function Checkout() {
     });
   }
 
+  let action = (
+    <>
+      <Button type="button" textOnly onClick={handleClose}>
+        Close
+      </Button>
+      <Button>Submit Order</Button>
+    </>
+  );
+
+  if (isSending) {
+    action = <span> Sending order request...</span>;
+  }
+
   return (
     <Modal open={userProgressCtx.progress === "checkout"}>
       <form onSubmit={handleSubmit}>
@@ -50,12 +87,7 @@ export default function Checkout() {
           <Input id="postal-code" label="Postal Code"></Input>
           <Input id="city" label="City"></Input>
         </div>
-        <p className="modal-actions">
-          <Button type="button" textOnly onClick={handleClose}>
-            Close
-          </Button>
-          <Button>Submit Order</Button>
-        </p>
+        <p className="modal-actions">{action}</p>
       </form>
     </Modal>
   );
